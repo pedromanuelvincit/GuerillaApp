@@ -67,4 +67,40 @@ Olá\! Sou o seu Mentor G.E.M. e analisei a sua trajetória de aprendizagem com 
 💡 \*\*Oportunidades de Otimização do Framework:\*\* \[Sugira 1-2 melhorias no seu PROCESSO. Ex: "Para as próximas sessões, sugiro um desafio: tente prever qual será o feedback do Cognos antes de o receber. Isso irá acelerar a sua capacidade de autoanálise."\]
 
 🚀 \*\*Próxima Fronteira e Ação Principal:\*\* \[Termine com uma visão de futuro e uma única sugestão clara e motivacional. Ex: "Sua próxima fronteira é a autonomia. A ação principal para esta semana é focar em refinar a sua 'Pergunta-Chave' para que ela já antecipe os pontos que o Cognos provavelmente levantará."\]  
-\---  
+—
+
+## **💡 A Teoria por Trás do Framework KIA**
+
+O KIA não é apenas uma sequência de passos; é um sistema fundamentado em princípios modernos da ciência da aprendizagem. A sua eficácia reside em dois conceitos-chave: a **meta-aprendizagem ativa** e a análise dos **deltas cognitivos**.
+
+### **O Poder da Meta-aprendizagem Ativa**
+
+A forma tradicional de estudar é muitas vezes passiva: ouvimos aulas, lemos livros e consumimos informação. A meta-aprendizagem, ou "aprender a aprender", propõe uma abordagem diferente. Em vez de ser um mero recetor de conteúdo, você torna-se o **arquiteto do seu próprio processo de aprendizagem**.
+
+O Framework KIA é eficaz porque o força a entrar neste modo ativo. Ele transforma o estudo num ciclo de **hipótese (Aula), experimentação (Missão Prática), feedback (Cognos) e reflexão (Síntese Final)**. É um método moderno porque espelha a forma como os desafios são resolvidos no mundo real: através de ciclos iterativos de ação e análise. Ao usar o KIA, você não está apenas a aprender sobre um assunto; está a treinar a sua capacidade de aprender qualquer coisa de forma mais rápida e profunda.
+
+### **O Coração do Método: O Delta Cognitivo**
+
+O verdadeiro crescimento não acontece ao acertar, mas ao entender por que erramos ou onde a nossa intuição inicial falhou. É aqui que entra o conceito de **Delta Cognitivo**.
+
+* **Delta (Δ):** Na ciência, é o símbolo que representa a **diferença** ou a **mudança**.  
+* **Cognitivo:** Refere-se ao seu processo de pensar e entender.
+
+O **Delta Cognitivo**, portanto, é a lacuna mensurável entre a sua perceção inicial sobre um tópico e uma compreensão mais profunda e objetiva. O Framework KIA foi desenhado para iluminar este "delta":
+
+1. A sua **"Descoberta Principal"** é a sua primeira intuição, o seu "momento aha\!".  
+2. O **"Feedback do Cognos"** é a análise técnica externa, que revela os seus pontos cegos.  
+3. A sua **"Síntese Final"** é onde você processa essa diferença.
+
+O aprendizado mais duradouro ocorre exatamente neste espaço — ao refletir sobre o "delta" entre a sua visão e a realidade técnica. O Mentor G.E.M. foi projetado para analisar a evolução destes deltas ao longo do tempo, mostrando como a sua capacidade de autoanálise está a melhorar.
+
+---
+
+## **⚠️ Sobre a Ferramenta Cognanvas (Fase Beta)**
+
+Este projeto é uma iniciativa pessoal e está em constante desenvolvimento. A versão aqui disponibilizada é um **template funcional para uso pessoal**. As funcionalidades de IA integradas na aplicação (como a sugestão de perguntas) requerem a configuração de uma chave de API do Google Gemini, conforme explicado no código-fonte. No entanto, o fluxo principal do framework (registar dados e exportá-los para análise externa com o Mentor G.E.M.) funciona sem qualquer configuração.
+
+## **⚖️ Licença**
+
+Este projeto é distribuído sob a Licença MIT. Veja o ficheiro [`LICENCE`](https://github.com/pedromanuelvincit/KIA-Cognanvas/blob/main/LICENSE) para mais detalhes. Sinta-se à vontade para usar, modificar e distribuir este trabalho.
+
