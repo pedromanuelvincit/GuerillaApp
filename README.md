@@ -51,4 +51,4 @@ As funcionalidades de assistência e análise por IA (Mentor G.E.M., sugestões 
 
 ## **📜 Licença**
 
-Este projeto é distribuído sob a Licença MIT. Veja o ficheiro LICENSE para mais detalhes. Sinta-se à vontade para usar, modificar e distribuir este trabalho.
+Este projeto é distribuído sob a Licença MIT. Veja o ficheiro https://github.com/pedromanuelvincit/KIA-Cognanvas/blob/main/LICENSE para mais detalhes. Sinta-se à vontade para usar, modificar e distribuir este trabalho.
