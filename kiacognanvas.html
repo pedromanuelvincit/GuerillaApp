@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognanvas K.I.A.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #feedback-message {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        /* Estilos para o Modal */
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+        /* Animação de carregamento */
+        .loader, .mini-loader {
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6366f1;
+            width: 40px;
+            height: 40px;
+        }
+        .mini-loader {
+            border: 2px solid #c7d2fe;
+            border-top: 2px solid #6366f1;
+            width: 16px;
+            height: 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Cabeçalho e Controles -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Cognanvas K.I.A.</h1>
+            <p class="mt-2 text-gray-600">Seu Assistente de Integração de Conhecimento</p>
+            <div class="mt-6 flex flex-wrap justify-center items-center gap-4">
+                <button id="save-button" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Salvar Progresso Atual
+                </button>
+                <button id="add-to-history-button" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Adicionar ao Histórico
+                </button>
+                <button id="clear-button" class="bg-red-500 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Limpar Campos
+                </button>
+            </div>
+            <div id="feedback-message" class="mt-4 font-medium h-6 opacity-0">
+                <!-- Mensagem de feedback aqui -->
+            </div>
+        </header>
+
+        <main class="space-y-6" id="main-content">
+            <!-- Campos do Canvas -->
+             <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="materia" class="block text-sm font-bold text-gray-700 mb-2">Matéria</label>
+                        <input type="text" id="materia" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="Ex: Gestão Ágil de Projetos">
+                    </div>
+                    <div>
+                        <label for="topico" class="block text-sm font-bold text-gray-700 mb-2">Tópico Central</label>
+                        <input type="text" id="topico" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="Ex: Inovando com a Incerteza">
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Coluna da Esquerda: Setup -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                        <h2 class="text-xl font-bold mb-4">1. ATIVAÇÃO</h2>
+                        <div class="flex items-center justify-between mb-2">
+                             <label for="ativacao" class="block text-md font-semibold text-gray-800">🎯 Pergunta-Chave:</label>
+                             <button id="generate-ativacao-button" class="text-xs bg-indigo-100 text-indigo-700 font-semibold py-1 px-3 rounded-full hover:bg-indigo-200 transition-colors flex items-center gap-1">
+                                ✨ Gerar com IA
+                             </button>
+                        </div>
+                        <textarea id="ativacao" rows="4" class="w-full flex-grow p-3 border border-gray-300 rounded-lg" placeholder="Qual a única ideia que preciso dominar sobre este tópico?"></textarea>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg space-y-4">
+                        <h2 class="text-xl font-bold mb-4">2. PLANEAMENTO</h2>
+                        <div>
+                            <label for="bloco_foco" class="block text-md font-semibold text-gray-800 mb-2">🗓️ Bloco de Foco Agendado:</label>
+                            <input type="text" id="bloco_foco" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Ex: Domingo, 21:00 - 23:20">
+                        </div>
+                         <div>
+                            <label for="energia" class="block text-md font-semibold text-gray-800 mb-2">⚡ Nível de Energia (1-5):</label>
+                            <input type="number" id="energia" min="1" max="5" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Seja honesto. Ex: 4">
+                        </div>
+                        <div>
+                            <label for="obstaculo" class="block text-md font-semibold text-gray-800 mb-2">🚧 Principal Obstáculo:</label>
+                            <textarea id="obstaculo" rows="2" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Ex: Cansaço e a matéria ser muito abstrata"></textarea>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="plano_anti_obstaculo" class="block text-md font-semibold text-gray-800">🛡️ Plano Anti-Obstáculo:</label>
+                                <button id="generate-plano-button" class="text-xs bg-indigo-100 text-indigo-700 font-semibold py-1 px-3 rounded-full hover:bg-indigo-200 transition-colors flex items-center gap-1">
+                                    ✨ Sugerir Plano
+                                </button>
+                            </div>
+                            <textarea id="plano_anti_obstaculo" rows="2" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Sua contramedida. Ex: Pausas estratégicas"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- Coluna da Direita: Jornada de Aprendizagem -->
+                <div class="bg-white p-6 rounded-xl shadow-lg space-y-4">
+                    <h2 class="text-xl font-bold mb-4">3. FASES DO ESTUDO</h2>
+                    <div>
+                        <label for="aula_notas" class="block text-md font-semibold text-gray-800 mb-2">Aula (Notas Rápidas):</label>
+                        <textarea id="aula_notas" rows="3" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Palavras-chave e conceitos da aula."></textarea>
+                    </div>
+                    <div>
+                        <label for="repertorio_insights" class="block text-md font-semibold text-gray-800 mb-2">Aumentando Repertório (Insights):</label>
+                        <textarea id="repertorio_insights" rows="3" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Principais ideias do aprofundamento teórico."></textarea>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                             <label for="missao_pratica" class="block text-md font-semibold text-gray-800">Missão Prática (com Cognos):</label>
+                             <button id="generate-missao-button" class="text-xs bg-indigo-100 text-indigo-700 font-semibold py-1 px-3 rounded-full hover:bg-indigo-200 transition-colors flex items-center gap-1">
+                                ✨ Sugerir Missão
+                             </button>
+                        </div>
+                        <textarea id="missao_pratica" rows="4" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Qual foi o exercício prático ou caso de estudo?"></textarea>
+                    </div>
+                    <div>
+                        <label for="descoberta" class="block text-md font-semibold text-gray-800 mb-2">💡 Descoberta Principal (Momento "Aha!"):</label>
+                        <textarea id="descoberta" rows="3" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Qual foi o grande insight prático da sessão?"></textarea>
+                     </div>
+                </div>
+            </div>
+            <!-- Seção Final: Síntese -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl font-bold mb-4">4. SÍNTESE E FEEDBACK</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                         <label for="feedback_cognos" class="block text-md font-semibold text-gray-800 mb-2">📢 Feedback do Cognos (Relatório do Estudo):</label>
+                        <textarea id="feedback_cognos" rows="10" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Cole aqui o feedback/relatório gerado pelo Cognos."></textarea>
+                    </div>
+                    <div>
+                         <label for="sintese_final" class="block text-md font-semibold text-gray-800 mb-2">🧠 Minha Síntese Final:</label>
+                        <textarea id="sintese_final" rows="10" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Após ler o feedback, qual é a sua principal conclusão ou o que você aprendeu sobre o seu próprio aprendizado?"></textarea>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Seção do Histórico -->
+        <section id="history-section" class="mt-10 bg-white p-6 rounded-xl shadow-lg hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center">Histórico de Estudo</h2>
+            <div class="flex flex-wrap justify-center mb-6 gap-4">
+                 <button id="analise-ia-button" class="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Analisar com Mentor G.E.M.
+                </button>
+                 <button id="export-csv-button" class="bg-teal-500 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Exportar para CSV
+                </button>
+                 <button id="clear-history-button" class="bg-yellow-500 text-black font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Limpar Histórico
+                </button>
+            </div>
+            <div class="table-container">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matéria</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tópico</th>
+                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Energia</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descoberta Principal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Linhas da tabela serão inseridas aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal para Análise da IA -->
+    <div id="ia-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden opacity-0">
+        <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col transform scale-95">
+            <header class="flex items-center justify-between p-5 border-b border-gray-200">
+                <div class="flex items-center gap-4">
+                     <svg class="w-8 h-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M12 3v1.5m0 16.5V21m3.75-18v1.5M12 8.25h.01M16.5 12h.01M12 15.75h.01M16.5 15.75h.01M16.5 8.25h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <h2 class="text-2xl font-bold text-gray-800">Análise do Mentor G.E.M.</h2>
+                </div>
+                <button id="close-modal-button" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </header>
+            <main id="ia-response-container" class="p-6 overflow-y-auto space-y-4">
+                <!-- Conteúdo da IA aqui -->
+                <div id="loader-container" class="flex flex-col items-center justify-center text-center py-10">
+                    <div class="loader"></div>
+                    <p class="mt-4 text-lg text-gray-600">A analisar o seu progresso... O seu mentor pessoal está a preparar os insights.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <script>
+        // English: Event listener that waits for the HTML document to be fully loaded before running the script.
+        // Português: Event listener que aguarda o documento HTML ser totalmente carregado antes de executar o script.
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // English: Array containing the IDs of all input fields in the canvas. Used for saving and loading data.
+            // Português: Array contendo os IDs de todos os campos de entrada no canvas. Usado para salvar e carregar dados.
+            const inputIds = [
+                'materia', 'topico', 'ativacao', 'bloco_foco', 'energia', 
+                'obstaculo', 'plano_anti_obstaculo', 'aula_notas', 'repertorio_insights', 
+                'missao_pratica', 'descoberta', 'feedback_cognos', 'sintese_final'
+            ];
+            
+            // English: Variables that store references to the HTML elements for easier access and manipulation.
+            // Português: Variáveis que armazenam referências aos elementos HTML para facilitar o acesso e a manipulação.
+            const saveButton = document.getElementById('save-button');
+            const clearButton = document.getElementById('clear-button');
+            const addToHistoryButton = document.getElementById('add-to-history-button');
+            const exportCsvButton = document.getElementById('export-csv-button');
+            const clearHistoryButton = document.getElementById('clear-history-button');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const historySection = document.getElementById('history-section');
+            const historyTableBody = document.getElementById('history-table-body');
+            const analiseIaButton = document.getElementById('analise-ia-button');
+            const iaModal = document.getElementById('ia-modal');
+            const closeModalButton = document.getElementById('close-modal-button');
+            const iaResponseContainer = document.getElementById('ia-response-container');
+            const loaderContainer = document.getElementById('loader-container');
+            const generateAtivacaoButton = document.getElementById('generate-ativacao-button');
+            const generateMissaoButton = document.getElementById('generate-missao-button');
+            const generatePlanoButton = document.getElementById('generate-plano-button');
+
+            // --- UI & DATA MANAGEMENT FUNCTIONS ---
+            // --- FUNÇÕES DE GESTÃO DE UI E DADOS ---
+
+            // English: Displays a temporary feedback message to the user (e.g., "Progress saved!").
+            // Português: Exibe uma mensagem de feedback temporária para o usuário (ex: "Progresso salvo!").
+            const showFeedback = (message, color = 'green') => {
+                feedbackMessage.textContent = message;
+                feedbackMessage.className = `mt-4 font-medium h-6 opacity-100 text-${color}-600`;
+                setTimeout(() => { feedbackMessage.style.opacity = '0'; }, 3000);
+            };
+
+            // English: Saves the current content of all input fields to the browser's local storage.
+            // Português: Salva o conteúdo atual de todos os campos de entrada no local storage do navegador.
+            const saveCurrentCanvas = () => {
+                const canvasData = {};
+                inputIds.forEach(id => { 
+                    const element = document.getElementById(id);
+                    if(element) canvasData[id] = element.value; 
+                });
+                localStorage.setItem('cognanvasCurrent', JSON.stringify(canvasData));
+                showFeedback('Progresso atual salvo!');
+            };
+
+            // English: Loads the saved canvas content from local storage into the input fields when the page loads.
+            // Português: Carrega o conteúdo salvo do canvas do local storage para os campos de entrada quando a página é carregada.
+            const loadCurrentCanvas = () => {
+                const savedData = localStorage.getItem('cognanvasCurrent');
+                if (savedData) {
+                    const canvasData = JSON.parse(savedData);
+                    inputIds.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element && canvasData[id]) {
+                            element.value = canvasData[id];
+                        }
+                    });
+                }
+            };
+
+            // English: Clears all input fields after user confirmation.
+            // Português: Limpa todos os campos de entrada após a confirmação do usuário.
+            const clearCanvasFields = () => {
+                if (confirm('Tem a certeza de que deseja limpar todos os campos?')) {
+                    inputIds.forEach(id => { 
+                        const element = document.getElementById(id);
+                        if(element) element.value = ''; 
+                    });
+                    localStorage.removeItem('cognanvasCurrent');
+                    showFeedback('Campos limpos!', 'yellow');
+                }
+            };
+
+            // English: Renders the study history from local storage into the HTML table.
+            // Português: Renderiza o histórico de estudos do local storage na tabela HTML.
+            const renderHistoryTable = () => {
+                const history = JSON.parse(localStorage.getItem('cognanvasHistory') || '[]');
+                historyTableBody.innerHTML = '';
+                if (history.length > 0) {
+                    historySection.classList.remove('hidden');
+                    history.forEach(entry => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(entry.timestamp).toLocaleString('pt-BR')}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">${entry.materia || ''}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">${entry.topico || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">${entry.energia || ''}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">${(entry.descoberta || '').substring(0, 50)}...</td>
+                        `;
+                        historyTableBody.appendChild(row);
+                    });
+                } else {
+                    historySection.classList.add('hidden');
+                }
+            };
+            
+            // English: Adds the current canvas data as a new entry to the history in local storage.
+            // Português: Adiciona os dados atuais do canvas como uma nova entrada no histórico no local storage.
+            const addToHistory = () => {
+                if (!document.getElementById('materia').value || !document.getElementById('topico').value) {
+                    alert('Preencha pelo menos "Matéria" e "Tópico" para adicionar ao histórico.');
+                    return;
+                }
+                const history = JSON.parse(localStorage.getItem('cognanvasHistory') || '[]');
+                const currentData = { timestamp: new Date().toISOString() };
+                inputIds.forEach(id => { 
+                    const element = document.getElementById(id);
+                    if(element) currentData[id] = element.value; 
+                });
+                history.unshift(currentData);
+                localStorage.setItem('cognanvasHistory', JSON.stringify(history));
+                showFeedback('Sessão adicionada ao histórico!');
+                renderHistoryTable();
+            };
+            
+            // English: Clears the entire study history from local storage after user confirmation.
+            // Português: Limpa todo o histórico de estudos do local storage após a confirmação do usuário.
+            const clearHistory = () => {
+                if(confirm('Tem a CERTEZA de que deseja limpar TODO o histórico? Esta ação é irreversível.')) {
+                    localStorage.removeItem('cognanvasHistory');
+                    renderHistoryTable();
+                    showFeedback('Histórico limpo com sucesso!', 'red');
+                }
+            };
+
+            // --- CSV EXPORT FUNCTIONS ---
+            // --- FUNÇÕES DE EXPORTAÇÃO CSV ---
+
+            // English: Converts the history data (JSON) into a CSV formatted string.
+            // Português: Converte os dados do histórico (JSON) para uma string formatada em CSV.
+            const jsonToCsv = (jsonData) => {
+                const headers = ['timestamp', ...inputIds];
+                const csvRows = [headers.join(',')];
+                jsonData.forEach(entry => {
+                    const values = headers.map(header => {
+                        const escaped = ('' + (entry[header] || '')).replace(/"/g, '""');
+                        return `"${escaped}"`;
+                    });
+                    csvRows.push(values.join(','));
+                });
+                return csvRows.join('\n');
+            };
+
+            // English: Triggers the download of the current history as a CSV file.
+            // Português: Inicia o download do histórico atual como um arquivo CSV.
+            const exportToCSV = () => {
+                const history = JSON.parse(localStorage.getItem('cognanvasHistory') || '[]');
+                if (history.length === 0) { alert('Não há histórico para exportar.'); return; }
+                const csvString = jsonToCsv(history);
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `historico_cognanvas_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            
+            // --- AI INTEGRATION & MODAL FUNCTIONS ---
+            // --- FUNÇÕES DE INTEGRAÇÃO COM IA E MODAL ---
+
+            // English: A generic function to call the Gemini API. It handles the request, payload, and loading state of the button.
+            // Português: Uma função genérica para chamar a API do Gemini. Ela lida com a requisição, o payload e o estado de carregamento do botão.
+            const callGemini = async (payload, buttonElement) => {
+                const originalButtonContent = buttonElement ? buttonElement.innerHTML : null;
+                if (buttonElement) {
+                    buttonElement.innerHTML = `<div class="mini-loader"></div>`;
+                    buttonElement.disabled = true;
+                }
+
+                // ===============================================================================================
+                // English: IMPORTANT! This is where you must insert your Google Gemini API key.
+                // Português: IMPORTANTE! É aqui que você deve inserir a sua chave de API do Google Gemini.
+                //
+                // English: Get your key from Google AI Studio.
+                // Português: Obtenha a sua chave no Google AI Studio.
+                //
+                // Example / Exemplo: const apiKey = "AIzaSy...YOUR_KEY_HERE...";
+                const apiKey = ""; 
+                // ===============================================================================================
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
+                    const result = await response.json();
+                    if (!result.candidates || !result.candidates[0].content.parts[0].text) {
+                        throw new Error("Resposta da API inválida ou vazia.");
+                    }
+                    return result.candidates[0].content.parts[0].text;
+                } finally {
+                    if (buttonElement) {
+                        buttonElement.innerHTML = originalButtonContent;
+                        buttonElement.disabled = false;
+                    }
+                }
+            };
+
+            // English: Functions to control the visibility and animation of the AI analysis modal.
+            // Português: Funções para controlar a visibilidade e a animação do modal de análise da IA.
+            const openModal = () => {
+                iaModal.classList.remove('hidden');
+                setTimeout(() => {
+                    iaModal.classList.remove('opacity-0');
+                    iaModal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            };
+            const closeModal = () => {
+                iaModal.classList.add('opacity-0');
+                iaModal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => { iaModal.classList.add('hidden'); }, 300);
+            };
+
+            // English: Formats the plain text response from the AI into styled HTML for better readability.
+            // Português: Formata a resposta de texto plano da IA para HTML estilizado para melhor legibilidade.
+            const formatIaResponse = (text) => {
+                return text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                    .replace(/(\n\s*-\s|\n\s*\*\s)/g, '</li><li class="list-disc ml-5 mb-2">')
+                    .replace(/^(\📊|\🏆|\💡|\🧠|\🚀|\📈)(.*)$/gm, (match, emoji, rest) => `<h3 class="text-xl font-bold text-gray-800 mt-6 mb-3 flex items-center gap-3">${emoji} ${rest.trim()}</h3>`)
+                    .replace(/<\/li>/, '')
+                    .replace(/<li/, '<ul class="pl-5 text-gray-700"><li');
+            };
+
+            // English: Main function for the "Mentor G.E.M.". It prepares the data and the prompt, calls the AI, and displays the analysis.
+            // Português: Função principal do "Mentor G.E.M.". Prepara os dados e o prompt, chama a IA e exibe a análise.
+            const analyzeWithAI = async () => {
+                const history = JSON.parse(localStorage.getItem('cognanvasHistory') || '[]');
+                if (history.length === 0) {
+                    alert('Precisa de ter pelo menos uma entrada no histórico para o Mentor G.E.M. poder analisar.');
+                    return;
+                }
+                
+                iaResponseContainer.innerHTML = '';
+                loaderContainer.style.display = 'flex';
+                iaResponseContainer.appendChild(loaderContainer);
+                openModal();
+                
+                const csvData = jsonToCsv(history);
+                const GEMINI_PROMPT = `
+# PERSONA
+Você é o "Mentor G.E.M.", um estrategista de aprendizagem de longo prazo e arquiteto da evolução de aprendizagem de um aluno. Sua personalidade é a de um coach de alta performance: analítico, encorajador e focado em otimizar o *processo* e não apenas o resultado. Você entende profundamente o framework de estudo do aluno: Aula -> Aumento de Repertório -> Missão Prática com "Cognos" (uma IA parceira) -> Registro no Cognanvas -> Análise do Mentor G.E.M.
+
+# OBJETIVO PRINCIPAL
+Analisar o histórico completo de estudos do aluno (CSV) para identificar padrões de longo prazo, avaliar a eficácia do seu framework de aprendizagem e fornecer insights estratégicos para a sua evolução contínua. Seu foco é a meta-aprendizagem.
+
+# CONTEXTO DOS DADOS (FRAMEWORK DO ALUNO)
+O CSV representa o output do Cognanvas. As colunas mais importantes para a sua análise estratégica são:
+- \`timestamp\`, \`energia\`, \`obstaculo\`: Para análise de padrões e hábitos.
+- \`descoberta\`: O insight inicial do aluno, o seu "momento aha!".
+- \`feedback_cognos\`: O relatório da IA parceira, "Cognos". Este é um feedback externo e técnico.
+- \`sintese_final\`: A reflexão do aluno APÓS receber o feedback do Cognos. Esta é a coluna mais importante para avaliar a internalização e o aprendizado sobre o próprio aprendizado.
+
+# PROCESSO DE ANÁLISE (PASSO A PASSO ESTRATÉGICO)
+1.  **Análise de Padrões e Hábitos:** Analise consistência, energia e obstáculos recorrentes em todo o histórico.
+2.  **Análise de Trajetória (Visão de Longo Prazo):** Compare a(s) sessão(ões) mais recente(s) com as mais antigas. O aluno está a evoluir na forma como lida com os obstáculos? As suas "descobertas" estão a tornar-se mais profundas? A sua energia está a melhorar ou a piorar em certos horários?
+3.  **Análise do Delta Cognitivo (O CORAÇÃO DA ANÁLISE):** Para a sessão mais recente, faça uma triangulação crítica:
+    - **Descoberta vs. Feedback Cognos:** O insight do aluno estava alinhado com a análise técnica do Cognos? Onde estava a principal lacuna (o "delta") entre a percepção do aluno e a realidade técnica?
+    - **Feedback Cognos vs. Síntese Final:** O aluno conseguiu absorver o feedback e usá-lo para gerar uma nova conclusão, mais rica? Ou apenas concordou passivamente? Avalie a profundidade da reflexão do aluno.
+4.  **Geração de Insights Estratégicos:** Com base em tudo acima, prepare a sua resposta seguindo o formato obrigatório.
+
+# FORMATO DA RESPOSTA (OBRIGATÓRIO)
+---
+Olá! Sou o seu Mentor G.E.M. e analisei a sua trajetória de aprendizagem com base no seu histórico completo. Aqui está a sua análise estratégica:
+
+📊 **Análise de Padrões e Hábitos:** [Comente sobre a sua consistência, horários e gestão de energia, com base em todo o histórico.]
+
+📈 **Sua Trajetória de Aprendizagem (Evolução ao Longo do Tempo):** [Compare as sessões recentes com as mais antigas. Destaque o seu progresso e as áreas que se mantêm como desafios recorrentes.]
+
+🧠 **Análise do seu Framework (O "Delta Cognitivo" da Última Sessão):** [Foque na última sessão. Analise a relação entre a sua descoberta, o feedback do Cognos e a sua síntese. Aponte onde ocorreu o maior aprendizado no processo.]
+
+🏆 **Seus Pontos Fortes Estratégicos:** [Elogie 2-3 pontos fortes relacionados ao seu PROCESSO de aprender a aprender. Ex: "Sua habilidade de usar o feedback do Cognos para refinar sua síntese final melhorou notavelmente nas últimas sessões..."]
+
+💡 **Oportunidades de Otimização do Framework:** [Sugira 1-2 melhorias no seu PROCESSO. Ex: "Para as próximas sessões, sugiro um desafio: tente prever qual será o feedback do Cognos antes de o receber. Isso irá acelerar a sua capacidade de autoanálise."]
+
+🚀 **Próxima Fronteira e Ação Principal:** [Termine com uma visão de futuro e uma única sugestão clara e motivacional. Ex: "Sua próxima fronteira é a autonomia. A ação principal para esta semana é focar em refinar a sua 'Pergunta-Chave' para que ela já antecipe os pontos que o Cognos provavelmente levantará."]
+---`;
+                const userQuery = `Por favor, analise os seguintes dados do meu histórico de estudo, que inclui o meu trabalho com a IA Cognos, e forneça os seus insights como Mentor G.E.M.:\n\n${csvData}`;
+                const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: GEMINI_PROMPT }] } };
+
+                try {
+                    const analysisText = await callGemini(payload);
+                    iaResponseContainer.innerHTML = formatIaResponse(analysisText);
+                } catch (error) {
+                    console.error("Erro ao contactar a IA:", error);
+                    iaResponseContainer.innerHTML = `<div class="text-center text-red-600 bg-red-100 p-4 rounded-lg"><h3 class="font-bold">Ocorreu um erro</h3><p>Não foi possível obter a análise. Tente novamente mais tarde.</p><p class="text-sm mt-2">Detalhe: ${error.message}</p></div>`;
+                } finally {
+                    loaderContainer.style.display = 'none';
+                }
+            };
+            
+            // English: AI helper function to generate a "Key Question" based on the study topic.
+            // Português: Função auxiliar de IA para gerar uma "Pergunta-Chave" com base no tópico de estudo.
+            const generateAtivacao = async () => {
+                const topico = document.getElementById('topico').value;
+                if (!topico) {
+                    alert('Por favor, preencha o campo "Tópico da Aula/Semana" primeiro.');
+                    return;
+                }
+                const prompt = `Aja como um professor universitário de IA. O tópico da aula é "${topico}". Gere uma única e fundamental "Pergunta-Chave" ou "Ideia Central" que um aluno deveria focar em responder. A resposta deve ser apenas a pergunta, de forma concisa e direta.`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                
+                try {
+                    const suggestion = await callGemini(payload, generateAtivacaoButton);
+                    document.getElementById('ativacao').value = suggestion.trim();
+                    showFeedback('Pergunta-chave gerada!', 'indigo');
+                } catch (error) {
+                    alert(`Erro ao gerar sugestão: ${error.message}`);
+                }
+            };
+
+            // English: AI helper function to suggest a "Practical Mission" based on the subject and topic.
+            // Português: Função auxiliar de IA para sugerir uma "Missão Prática" com base na matéria e no tópico.
+            const generateMissao = async () => {
+                const materia = document.getElementById('materia').value;
+                const topico = document.getElementById('topico').value;
+                if (!materia || !topico) {
+                    alert('Por favor, preencha os campos "Matéria" e "Tópico" primeiro.');
+                    return;
+                }
+                const prompt = `Aja como um mentor de estudos práticos de IA. Para a matéria "${materia}" e o tópico "${topico}", sugira uma "Missão Prática" concreta e realizável em 25-45 minutos. A missão deve ajudar a solidificar o conhecimento teórico. Descreva a missão de forma clara e direta, em 2 ou 3 frases.`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+                try {
+                    const suggestion = await callGemini(payload, generateMissaoButton);
+                    document.getElementById('missao_pratica').value = suggestion.trim();
+                    showFeedback('Missão prática sugerida!', 'indigo');
+                } catch (error) {
+                    alert(`Erro ao gerar sugestão: ${error.message}`);
+                }
+            };
+            
+            // English: AI helper function to suggest an "Anti-Obstacle Plan" based on the described challenge.
+            // Português: Função auxiliar de IA para sugerir um "Plano Anti-Obstáculo" com base no desafio descrito.
+            const generatePlano = async () => {
+                const obstaculo = document.getElementById('obstaculo').value;
+                if (!obstaculo) {
+                    alert('Por favor, descreva o seu "Principal Obstáculo" primeiro.');
+                    return;
+                }
+                const prompt = `Aja como um coach de produtividade e meta-aprendizagem. Um estudante está a enfrentar o seguinte obstáculo para a sua sessão de estudo: "${obstaculo}". Sugira um "Plano Anti-Obstáculo" concreto, simples e acionável em 1 ou 2 frases curtas. O plano deve ser prático e fácil de implementar imediatamente.`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+                try {
+                    const suggestion = await callGemini(payload, generatePlanoButton);
+                    document.getElementById('plano_anti_obstaculo').value = suggestion.trim();
+                    showFeedback('Plano sugerido pela IA!', 'indigo');
+                } catch (error) {
+                    alert(`Erro ao gerar sugestão: ${error.message}`);
+                }
+            };
+            
+            // --- EVENT LISTENERS ---
+            // --- EVENT LISTENERS ---
+            
+            // English: Assigns all the functions to their respective buttons and events.
+            // Português: Atribui todas as funções aos seus respectivos botões e eventos.
+            saveButton.addEventListener('click', saveCurrentCanvas);
+            clearButton.addEventListener('click', clearCanvasFields);
+            addToHistoryButton.addEventListener('click', addToHistory);
+            exportCsvButton.addEventListener('click', exportToCSV);
+            clearHistoryButton.addEventListener('click', clearHistory);
+            analiseIaButton.addEventListener('click', analyzeWithAI);
+            generateAtivacaoButton.addEventListener('click', generateAtivacao);
+            generateMissaoButton.addEventListener('click', generateMissao);
+            generatePlanoButton.addEventListener('click', generatePlano);
+            closeModalButton.addEventListener('click', closeModal);
+            iaModal.addEventListener('click', (e) => {
+                if (e.target === iaModal) closeModal(); // Closes modal if clicking on the background. / Fecha o modal se clicar no fundo.
+            });
+            
+            // --- INITIALIZATION ---
+            // --- INICIALIZAÇÃO ---
+            
+            // English: Loads the current canvas state and renders the history table when the page is first loaded.
+            // Português: Carrega o estado atual do canvas e renderiza a tabela de histórico quando a página é carregada pela primeira vez.
+            loadCurrentCanvas();
+            renderHistoryTable();
+        });
+    </script>
+
+</body>
+</html>
+
