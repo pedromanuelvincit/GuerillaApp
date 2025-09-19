@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Chosen Palette: Midnight Indigo -->
+    <!-- Application Structure Plan: The application is structured as a multi-view Single-Page App (SPA) optimized for desktop use. It features a persistent sidebar for navigation between distinct views: 'Início' (Dashboard), 'Diário de Estudo' (Canvas), 'Mapa' (Placeholder), and 'Histórico'. This structure was chosen to provide clear separation of concerns and a professional, scalable user experience. The Dashboard offers at-a-glance info, while the Diário is for deep work and includes the integrated timer module. -->
+    <!-- Visualization & Content Choices: Data is presented as text for clarity. The Dashboard contains the list of active timers. The Diário contains the full canvas form, including the new free-text triage fields and timer creation. The Histórico view contains the data table. All interactions are handled by a unified JavaScript state object. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guerilla V1.0 - Meta-Learning App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="guerilla.css">
+</head>
+<body class="bg-[#121212] text-gray-200">
+
+    <!-- Personalization Modal -->
+    <div id="name-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-[#1C1C1E] p-8 rounded-2xl shadow-2xl text-center w-full max-w-sm">
+            <h2 class="text-2xl font-bold text-white mb-4">Bem-vindo ao Guerilla!</h2>
+            <p class="text-gray-400 mb-6">Para começar, como podemos chamá-lo?</p>
+            <form id="name-form">
+                <input type="text" id="name-input" class="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-lg text-center" placeholder="Digite o seu nome" required>
+                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 mt-4 rounded-xl hover:bg-indigo-700 transition-colors">Confirmar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-container" class="w-full h-screen flex hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-[#1C1C1E] p-6 flex flex-col flex-shrink-0">
+            <h1 class="text-2xl font-bold text-white mb-10">Guerilla</h1>
+            <nav class="flex flex-col space-y-2">
+                <a href="#inicio" data-view="inicio" class="nav-link bg-indigo-600 text-white px-4 py-2 rounded-lg">Início</a>
+                <a href="#diario" data-view="diario" class="nav-link hover:bg-gray-700 px-4 py-2 rounded-lg">Diário de Estudo</a>
+                <a href="#mapa" data-view="mapa" class="nav-link hover:bg-gray-700 px-4 py-2 rounded-lg">Mapa de Aprendizagem</a>
+                <a href="#historico" data-view="historico" class="nav-link hover:bg-gray-700 px-4 py-2 rounded-lg">Histórico</a>
+            </nav>
+            <div class="mt-auto flex items-center space-x-4">
+                <div id="avatar" class="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center font-bold text-white text-xl"></div>
+                <div>
+                    <p class="font-semibold text-white" id="greeting">Olá,</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 bg-[#121212] p-8 overflow-y-auto">
+            
+            <!-- View: Início (Dashboard) -->
+            <div id="inicio-view" class="view-content">
+                <h2 class="text-4xl font-bold mb-8">Início</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1 bg-[#1C1C1E] p-6 rounded-2xl">
+                        <p class="text-lg font-semibold text-gray-400 uppercase tracking-wider">Tempo de Foco Hoje</p>
+                        <p id="daily-total-time" class="text-6xl font-bold text-white mt-2">00:00:00</p>
+                    </div>
+                    <div class="md:col-span-2 bg-[#1C1C1E] p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-gray-400 mb-4">Sessões Ativas</h3>
+                        <div id="active-timers-container" class="space-y-4"></div>
+                        <div class="border-t border-gray-700 my-6"></div>
+                        <h3 class="text-lg font-bold text-gray-400 mb-4">Sessões Concluídas Hoje</h3>
+                        <div id="completed-timers-container" class="space-y-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Diário de Estudo (Canvas) -->
+            <div id="diario-view" class="view-content hidden">
+                 <h2 class="text-4xl font-bold mb-8">Diário de Estudo</h2>
+                 <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="bg-[#1C1C1E] p-6 rounded-2xl space-y-6">
+                         <div>
+                            <h3 class="text-lg font-bold text-gray-300 mb-4">Informações Gerais</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <div>
+                                    <label for="materia" class="block text-sm font-bold text-gray-400 mb-2">Matéria</label>
+                                    <input type="text" id="materia" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Ex: Gestão Ágil de Projetos">
+                                </div>
+                                <div>
+                                    <label for="topico" class="block text-sm font-bold text-gray-400 mb-2">Tópico Central</label>
+                                    <input type="text" id="topico" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Ex: Inovando com a Incerteza">
+                                </div>
+                            </div>
+                         </div>
+                         <div class="border-t border-gray-700 pt-6">
+                            <h3 class="text-lg font-bold text-gray-300 mb-4">Cronômetro de Foco</h3>
+                             <div>
+                                <label for="timer-description" class="block text-sm font-semibold text-gray-400 mb-2">Nova Tarefa de Foco</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="timer-description" class="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Descrição da tarefa...">
+                                    <button id="start-timer-button" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-sm hover:bg-indigo-700">Iniciar</button>
+                                </div>
+                             </div>
+                         </div>
+                    </div>
+
+                     <div class="bg-[#1C1C1E] p-6 rounded-2xl space-y-4">
+                        <h3 class="text-lg font-bold">1. PERFIL DA SESSÃO</h3>
+                         <div>
+                            <label for="desafio_organizacional" class="block text-md font-semibold text-gray-400 mb-2">Meu Principal Desafio Organizacional</label>
+                             <input type="text" id="desafio_organizacional" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Opcional: Qual o seu maior desafio hoje? (Ex: Manter o foco)">
+                         </div>
+                         <div>
+                            <label for="objetivo_sessao" class="block text-md font-semibold text-gray-400 mb-2">Meu Objetivo Principal para Hoje</label>
+                             <input type="text" id="objetivo_sessao" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Opcional: O que você quer alcançar nesta sessão?">
+                         </div>
+                    </div>
+                     <div class="bg-[#1C1C1E] p-6 rounded-2xl space-y-4">
+                        <h3 class="text-lg font-bold">2. TRILHA DE APRENDIZAGEM</h3>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                 <label for="ativacao" class="block text-md font-semibold text-gray-400">🎯 Pergunta-Chave:</label>
+                                 <button id="generate-ativacao-button" class="text-xs bg-indigo-900/50 text-indigo-300 font-semibold py-1 px-3 rounded-full hover:bg-indigo-900 flex items-center gap-1">✨ Gerar</button>
+                            </div>
+                            <textarea id="ativacao" rows="3" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Qual a única ideia a dominar?"></textarea>
+                        </div>
+                        <div>
+                            <label for="aula_notas" class="block text-md font-semibold text-gray-400 mb-2">Degrau 1: Aula (Notas Rápidas)</label>
+                            <textarea id="aula_notas" rows="3" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Palavras-chave e conceitos que se destacaram."></textarea>
+                        </div>
+                        <div>
+                            <label for="repertorio_insights" class="block text-md font-semibold text-gray-400 mb-2">Degrau 2: Aumentando Repertório (Insights)</label>
+                            <textarea id="repertorio_insights" rows="3" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Principais ideias do aprofundamento teórico."></textarea>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="missao_pratica" class="block text-md font-semibold text-gray-400">Degrau 3: Missão Prática (com Cognos)</label>
+                                <button id="generate-missao-button" class="text-xs bg-indigo-900/50 text-indigo-300 font-semibold py-1 px-3 rounded-full hover:bg-indigo-900 flex items-center gap-1">✨ Sugerir</button>
+                            </div>
+                            <textarea id="missao_pratica" rows="3" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Descreva o exercício prático ou caso de estudo que foi realizado."></textarea>
+                        </div>
+                    </div>
+                     <div class="bg-[#1C1C1E] p-6 rounded-2xl space-y-4">
+                        <h3 class="text-lg font-bold">3. SÍNTESE E FEEDBACK</h3>
+                        <div>
+                            <label for="descoberta" class="block text-md font-semibold text-gray-400 mb-2">💡 Descoberta Principal (Momento "Aha!")</label>
+                            <textarea id="descoberta" rows="3" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Qual foi o grande insight prático da sessão?"></textarea>
+                         </div>
+                        <div>
+                             <label for="feedback_cognos" class="block text-md font-semibold text-gray-400 mb-2">📢 Feedback do Cognos</label>
+                            <textarea id="feedback_cognos" rows="6" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Cole aqui o relatório gerado pelo seu mentor Cognos."></textarea>
+                        </div>
+                        <div>
+                             <label for="sintese_final" class="block text-md font-semibold text-gray-400 mb-2">🧠 Minha Síntese Final</label>
+                            <textarea id="sintese_final" rows="6" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Após o feedback, qual é a sua principal conclusão?"></textarea>
+                        </div>
+                    </div>
+                    <div class="bg-[#1C1C1E] p-6 rounded-2xl space-y-4">
+                        <h3 class="text-lg font-bold">4. PLANEAMENTO ADICIONAL</h3>
+                        <div>
+                            <label for="obstaculo" class="block text-md font-semibold text-gray-400 mb-2">🚧 Principal Obstáculo:</label>
+                            <textarea id="obstaculo" rows="2" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Ex: Cansaço e matéria densa"></textarea>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="plano_anti_obstaculo" class="block text-md font-semibold text-gray-400">🛡️ Plano Anti-Obstáculo:</label>
+                                <button id="generate-plano-button" class="text-xs bg-indigo-900/50 text-indigo-300 font-semibold py-1 px-3 rounded-full hover:bg-indigo-900 flex items-center gap-1">✨ Sugerir</button>
+                            </div>
+                            <textarea id="plano_anti_obstaculo" rows="2" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Sua contramedida."></textarea>
+                        </div>
+                         <div>
+                            <label for="energia" class="block text-md font-semibold text-gray-400 mb-2">⚡ Nível de Energia (1-5):</label>
+                            <input type="number" id="energia" min="1" max="5" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" placeholder="Seja honesto. Ex: 4">
+                        </div>
+                    </div>
+                    <div class="pt-4 flex flex-col gap-4">
+                         <button id="add-to-history-button" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition-colors">Salvar Diário no Histórico</button>
+                         <button id="clear-button" class="w-full bg-gray-700 text-white font-bold py-3 rounded-xl hover:bg-gray-600 transition-colors">Limpar Campos do Diário</button>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- View: Mapa de Aprendizagem (Placeholder) -->
+            <div id="mapa-view" class="view-content hidden">
+                 <h2 class="text-4xl font-bold mb-8">Mapa de Aprendizagem</h2>
+                 <div class="bg-[#1C1C1E] p-8 rounded-2xl text-center">
+                    <p class="text-gray-400">Esta funcionalidade será desenvolvida numa próxima sprint.</p>
+                    <p>Aqui você poderá visualizar e construir a sua trilha de estudos de forma dinâmica.</p>
+                 </div>
+            </div>
+
+            <!-- View: Histórico -->
+            <div id="historico-view" class="view-content hidden">
+                 <h2 class="text-4xl font-bold mb-8">Histórico de Estudo</h2>
+                <div class="bg-[#1C1C1E] p-6 rounded-2xl">
+                    <div class="flex flex-wrap justify-center mb-6 gap-4">
+                         <button id="analise-ia-button" class="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg">Analisar com Mentor G.E.M.</button>
+                         <button id="export-csv-button" class="bg-teal-500 text-white font-semibold py-2 px-6 rounded-lg">Exportar para CSV</button>
+                         <button id="clear-history-button" class="bg-yellow-500 text-black font-semibold py-2 px-6 rounded-lg">Limpar Histórico</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-800">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Data</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Tipo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Descrição</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Duração</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body" class="bg-gray-900/50"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- FAB (agora fora do main) -->
+        <div id="fab-container" class="absolute bottom-8 right-8">
+            <button id="fab-add-timer" class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-lg transform hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <!-- AI Analysis Modal -->
+    <div id="ai-analysis-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="modal-content bg-[#1C1C1E] p-8 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+             <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-white">Análise do Mentor G.E.M.</h2>
+                <button id="close-ai-modal" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div id="ai-response-container" class="flex-grow overflow-y-auto text-gray-300 space-y-4">
+                 <div class="loader-container flex justify-center py-8"><div class="loader"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="guerilla.js"></script>
+</body>
+</html>
